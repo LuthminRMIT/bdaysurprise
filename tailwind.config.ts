@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -126,6 +125,16 @@ export default {
 					'28%': { transform: 'scale(1)' },
 					'42%': { transform: 'scale(1.1)' },
 					'70%': { transform: 'scale(1)' }
+				},
+				'scale-in': {
+					'0%': {
+						transform: 'scale(0.8)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
@@ -135,7 +144,8 @@ export default {
 				'float': 'float 3s ease-in-out infinite',
 				'pulse-pink': 'pulse-pink 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				'wiggle': 'wiggle 1s ease-in-out infinite',
-				'heart-beat': 'heart-beat 1.5s ease-in-out infinite'
+				'heart-beat': 'heart-beat 1.5s ease-in-out infinite',
+				'scale-in': 'scale-in 0.5s ease-out'
 			}
 		}
 	},

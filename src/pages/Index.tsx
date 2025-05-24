@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import SectionCard from '../components/SectionCard';
 import PixelIcon from '../components/PixelIcon';
 import FloatingHearts from '../components/FloatingHearts';
+import LoveLetter from '../components/LoveLetter';
 import { Heart } from 'lucide-react';
 
 const Index = () => {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [isLoveLetterOpen, setIsLoveLetterOpen] = useState(false);
 
   const sections = [
     {
@@ -44,6 +45,15 @@ const Index = () => {
   const handleSectionClick = (sectionId: string) => {
     setSelectedSection(sectionId);
     console.log(`Opening ${sectionId} section! ✨`);
+    
+    if (sectionId === 'love') {
+      setIsLoveLetterOpen(true);
+    }
+  };
+
+  const handleCloseLoveLetter = () => {
+    setIsLoveLetterOpen(false);
+    setSelectedSection(null);
   };
 
   return (
@@ -93,7 +103,7 @@ const Index = () => {
         </div>
 
         {/* Fun interactive message */}
-        {selectedSection && (
+        {selectedSection && selectedSection !== 'love' && (
           <div className="mt-12 text-center">
             <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-kitty-pink inline-block">
               <p className="text-kitty-pink font-cute text-xl font-bold">
@@ -114,6 +124,9 @@ const Index = () => {
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-float">
         <div className="text-6xl">🎀</div>
       </div>
+
+      {/* Love Letter Modal */}
+      <LoveLetter isOpen={isLoveLetterOpen} onClose={handleCloseLoveLetter} />
     </div>
   );
 };
