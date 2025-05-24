@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,5 +98,23 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Nunito', sans-serif;
+  }
+}
+
+@layer utilities {
+  .pixelated {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  
+  .kawaii-shadow {
+    box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3);
+  }
+  
+  .text-shadow-pink {
+    text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.3);
   }
 }

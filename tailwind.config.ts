@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,19 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				kitty: {
+					pink: '#FF69B4',
+					lightPink: '#FFB6C1',
+					softPink: '#FFC0CB',
+					white: '#FFFFFF',
+					red: '#FF1493',
+					yellow: '#FFD700'
 				}
+			},
+			fontFamily: {
+				'kawaii': ['Comic Sans MS', 'cursive'],
+				'cute': ['Nunito', 'sans-serif']
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +97,45 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'bounce-gentle': {
+					'0%, 100%': {
+						transform: 'translateY(0)',
+						animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)',
+						animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)'
+					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-15px)' }
+				},
+				'pulse-pink': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' }
+				},
+				'wiggle': {
+					'0%, 100%': { transform: 'rotate(-3deg)' },
+					'50%': { transform: 'rotate(3deg)' }
+				},
+				'heart-beat': {
+					'0%': { transform: 'scale(1)' },
+					'14%': { transform: 'scale(1.1)' },
+					'28%': { transform: 'scale(1)' },
+					'42%': { transform: 'scale(1.1)' },
+					'70%': { transform: 'scale(1)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'bounce-gentle': 'bounce-gentle 2s infinite',
+				'float': 'float 3s ease-in-out infinite',
+				'pulse-pink': 'pulse-pink 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'wiggle': 'wiggle 1s ease-in-out infinite',
+				'heart-beat': 'heart-beat 1.5s ease-in-out infinite'
 			}
 		}
 	},
