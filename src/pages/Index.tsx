@@ -3,11 +3,13 @@ import SectionCard from '../components/SectionCard';
 import PixelIcon from '../components/PixelIcon';
 import FloatingHearts from '../components/FloatingHearts';
 import LoveLetter from '../components/LoveLetter';
+import GiftGarden from '../components/GiftGarden';
 import { Heart } from 'lucide-react';
 
 const Index = () => {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [isLoveLetterOpen, setIsLoveLetterOpen] = useState(false);
+  const [isGiftGardenOpen, setIsGiftGardenOpen] = useState(false);
 
   const sections = [
     {
@@ -48,11 +50,18 @@ const Index = () => {
     
     if (sectionId === 'love') {
       setIsLoveLetterOpen(true);
+    } else if (sectionId === 'gift') {
+      setIsGiftGardenOpen(true);
     }
   };
 
   const handleCloseLoveLetter = () => {
     setIsLoveLetterOpen(false);
+    setSelectedSection(null);
+  };
+
+  const handleCloseGiftGarden = () => {
+    setIsGiftGardenOpen(false);
     setSelectedSection(null);
   };
 
@@ -103,7 +112,7 @@ const Index = () => {
         </div>
 
         {/* Fun interactive message */}
-        {selectedSection && selectedSection !== 'love' && (
+        {selectedSection && selectedSection !== 'love' && selectedSection !== 'gift' && (
           <div className="mt-12 text-center">
             <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-kitty-pink inline-block">
               <p className="text-kitty-pink font-cute text-xl font-bold">
@@ -127,6 +136,9 @@ const Index = () => {
 
       {/* Love Letter Modal */}
       <LoveLetter isOpen={isLoveLetterOpen} onClose={handleCloseLoveLetter} />
+      
+      {/* Gift Garden Modal */}
+      <GiftGarden isOpen={isGiftGardenOpen} onClose={handleCloseGiftGarden} />
     </div>
   );
 };
