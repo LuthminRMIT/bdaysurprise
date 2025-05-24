@@ -1,3 +1,4 @@
+
 import React from 'react';
 interface SectionCardProps {
   title: string;
@@ -15,7 +16,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
     animationDelay: delay
   }} onClick={onClick}>
       <div className="bg-white rounded-3xl shadow-lg p-8 text-center border-4 border-kitty-lightPink hover:border-kitty-pink hover:shadow-2xl transition-all duration-300">
-        <div className="mb-6 flex justify-center group-hover:animate-wiggle">
+        <div className="mb-6 flex justify-center">
           {icon}
         </div>
         <h3 className="text-xl font-bold font-cute text-kitty-pink group-hover:text-kitty-red transition-colors duration-300">
