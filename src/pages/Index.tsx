@@ -1,29 +1,42 @@
-
 import React, { useState } from 'react';
 import SectionCard from '../components/SectionCard';
 import PixelIcon from '../components/PixelIcon';
 import FloatingHearts from '../components/FloatingHearts';
 import { Heart } from 'lucide-react';
-
 const Index = () => {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
-
-  const sections = [
-    { id: 'gift', title: 'Gift Garden', icon: 'gift' as const, delay: '0s' },
-    { id: 'photo', title: 'Our Photo Album', icon: 'camera' as const, delay: '0.2s' },
-    { id: 'date', title: 'Sweet Date Plan', icon: 'castle' as const, delay: '0.4s' },
-    { id: 'playlist', title: 'Our Playlist', icon: 'music' as const, delay: '0.6s' },
-    { id: 'love', title: 'Love Letter', icon: 'heart' as const, delay: '0.8s' },
-  ];
-
+  const sections = [{
+    id: 'gift',
+    title: 'Gift Garden',
+    icon: 'gift' as const,
+    delay: '0s'
+  }, {
+    id: 'photo',
+    title: 'Our Photo Album',
+    icon: 'camera' as const,
+    delay: '0.2s'
+  }, {
+    id: 'date',
+    title: 'Sweet Date Plan',
+    icon: 'castle' as const,
+    delay: '0.4s'
+  }, {
+    id: 'playlist',
+    title: 'Our Playlist',
+    icon: 'music' as const,
+    delay: '0.6s'
+  }, {
+    id: 'love',
+    title: 'Love Letter',
+    icon: 'heart' as const,
+    delay: '0.8s'
+  }];
   const handleSectionClick = (sectionId: string) => {
     setSelectedSection(sectionId);
     // Add a cute notification
     console.log(`Opening ${sectionId} section! ✨`);
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-kitty-lightPink via-kitty-softPink to-kitty-white relative overflow-hidden">
+  return <div className="min-h-screen bg-gradient-to-br from-kitty-lightPink via-kitty-softPink to-kitty-white relative overflow-hidden">
       <FloatingHearts />
       
       {/* Decorative elements */}
@@ -36,12 +49,10 @@ const Index = () => {
       
       {/* Header */}
       <div className="text-center pt-16 pb-12">
-        <h1 className="text-6xl font-bold font-cute text-kitty-pink animate-bounce-gentle mb-4">
-          Hello Kitty
-        </h1>
+        <h1 className="text-6xl font-bold font-cute text-kitty-pink animate-bounce-gentle mb-4">HELLO JIYA!</h1>
         <div className="flex justify-center items-center gap-2">
           <Heart className="text-kitty-red animate-heart-beat" size={20} />
-          <p className="text-2xl font-cute text-kitty-red">Kawaii Website</p>
+          <p className="text-2xl font-cute text-kitty-red">You're So Sexyyy</p>
           <Heart className="text-kitty-red animate-heart-beat" size={20} />
         </div>
         <div className="mt-4 flex justify-center">
@@ -54,20 +65,11 @@ const Index = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 max-w-7xl mx-auto">
-          {sections.map((section) => (
-            <SectionCard
-              key={section.id}
-              title={section.title}
-              icon={<PixelIcon type={section.icon} />}
-              onClick={() => handleSectionClick(section.id)}
-              delay={section.delay}
-            />
-          ))}
+          {sections.map(section => <SectionCard key={section.id} title={section.title} icon={<PixelIcon type={section.icon} />} onClick={() => handleSectionClick(section.id)} delay={section.delay} />)}
         </div>
 
         {/* Fun interactive message */}
-        {selectedSection && (
-          <div className="mt-12 text-center animate-bounce-gentle">
+        {selectedSection && <div className="mt-12 text-center animate-bounce-gentle">
             <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-kitty-pink inline-block">
               <p className="text-kitty-pink font-cute text-xl font-bold">
                 🌸 You clicked on {sections.find(s => s.id === selectedSection)?.title}! 🌸
@@ -76,8 +78,7 @@ const Index = () => {
                 Coming soon with lots of kawaii content! ✨
               </p>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
 
       {/* Footer decoration */}
@@ -87,8 +88,6 @@ const Index = () => {
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-float">
         <div className="text-6xl">🎀</div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
