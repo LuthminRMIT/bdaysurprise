@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SectionCard from '../components/SectionCard';
@@ -103,7 +104,7 @@ const Index = () => {
 
       {/* Main Content - Centered */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 max-w-7xl">
           {sections.map(section => (
             <SectionCard
               key={section.id}

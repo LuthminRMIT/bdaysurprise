@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Heart, X } from 'lucide-react';
 
@@ -117,4 +118,4 @@ const LoveLetter: React.FC<LoveLetterProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default LoveLetter; 
+export default LoveLetter;
