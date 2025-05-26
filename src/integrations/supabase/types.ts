@@ -9,7 +9,86 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      playlist_tracks: {
+        Row: {
+          added_at: string
+          album_name: string | null
+          artist_name: string
+          duration_ms: number | null
+          id: string
+          image_url: string | null
+          playlist_id: string | null
+          preview_url: string | null
+          spotify_track_id: string
+          track_name: string
+        }
+        Insert: {
+          added_at?: string
+          album_name?: string | null
+          artist_name: string
+          duration_ms?: number | null
+          id?: string
+          image_url?: string | null
+          playlist_id?: string | null
+          preview_url?: string | null
+          spotify_track_id: string
+          track_name: string
+        }
+        Update: {
+          added_at?: string
+          album_name?: string | null
+          artist_name?: string
+          duration_ms?: number | null
+          id?: string
+          image_url?: string | null
+          playlist_id?: string | null
+          preview_url?: string | null
+          spotify_track_id?: string
+          track_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_tracks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          spotify_id: string | null
+          total_tracks: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          spotify_id?: string | null
+          total_tracks?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          spotify_id?: string | null
+          total_tracks?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

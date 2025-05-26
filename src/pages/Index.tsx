@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SectionCard from '../components/SectionCard';
 import PixelIcon from '../components/PixelIcon';
 import FloatingHearts from '../components/FloatingHearts';
@@ -7,6 +9,7 @@ import GiftGarden from '../components/GiftGarden';
 import { Heart } from 'lucide-react';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [isLoveLetterOpen, setIsLoveLetterOpen] = useState(false);
   const [isGiftGardenOpen, setIsGiftGardenOpen] = useState(false);
@@ -52,6 +55,8 @@ const Index = () => {
       setIsLoveLetterOpen(true);
     } else if (sectionId === 'gift') {
       setIsGiftGardenOpen(true);
+    } else if (sectionId === 'playlist') {
+      navigate('/playlist');
     }
   };
 
@@ -112,7 +117,7 @@ const Index = () => {
         </div>
 
         {/* Fun interactive message */}
-        {selectedSection && selectedSection !== 'love' && selectedSection !== 'gift' && (
+        {selectedSection && selectedSection !== 'love' && selectedSection !== 'gift' && selectedSection !== 'playlist' && (
           <div className="mt-12 text-center">
             <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-kitty-pink inline-block">
               <p className="text-kitty-pink font-cute text-xl font-bold">
