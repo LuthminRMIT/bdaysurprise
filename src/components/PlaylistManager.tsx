@@ -5,18 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
-import { Music, Plus, Save } from 'lucide-react';
+import { Music, Plus, Save, Play } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PlaylistManagerProps {
   accessToken: string;
   selectedTracks: any[];
   onClearSelection: () => void;
+  onPlayTrack?: (track: any, trackList?: any[]) => void;
 }
 
 const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   accessToken,
   selectedTracks,
-  onClearSelection
+  onClearSelection,
+  onPlayTrack
 }) => {
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [newPlaylistName, setNewPlaylistName] = useState('');
@@ -38,6 +41,7 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
       setPlaylists(data || []);
     } catch (error) {
       console.error('Error loading playlists:', error);
+      toast.error('Failed to load playlists');
     }
   };
 
@@ -47,7 +51,6 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     try {
       setIsLoading(true);
       
-      // Create playlist on Spotify
       const { data: spotifyData, error: spotifyError } = await supabase.functions.invoke('spotify-api', {
         body: {
           action: 'createPlaylist',
@@ -59,7 +62,6 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
       if (spotifyError) throw spotifyError;
 
-      // Save playlist to our database
       const { data, error } = await supabase
         .from('playlists')
         .insert([
@@ -76,7 +78,6 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
       if (error) throw error;
 
-      // Add selected tracks if any
       if (selectedTracks.length > 0) {
         await addTracksToPlaylist(data.id, spotifyData.id);
       }
@@ -84,9 +85,10 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
       setNewPlaylistName('');
       setNewPlaylistDescription('');
       loadPlaylists();
-      console.log('Playlist created successfully!');
+      toast.success('Playlist created successfully!');
     } catch (error) {
       console.error('Error creating playlist:', error);
+      toast.error('Failed to create playlist');
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +100,6 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     try {
       setIsLoading(true);
 
-      // Add tracks to Spotify playlist
       const { error: spotifyError } = await supabase.functions.invoke('spotify-api', {
         body: {
           action: 'addTracksToPlaylist',
@@ -110,7 +111,6 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
       if (spotifyError) throw spotifyError;
 
-      // Save tracks to our database
       const trackData = selectedTracks.map(track => ({
         playlist_id: playlistDbId,
         spotify_track_id: track.id,
@@ -128,7 +128,6 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
       if (error) throw error;
 
-      // Update playlist track count
       await supabase
         .from('playlists')
         .update({ 
@@ -139,11 +138,19 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
       onClearSelection();
       loadPlaylists();
-      console.log('Tracks added successfully!');
+      toast.success('Tracks added successfully!');
     } catch (error) {
       console.error('Error adding tracks:', error);
+      toast.error('Failed to add tracks');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const playSelectedTracks = () => {
+    if (selectedTracks.length > 0 && onPlayTrack) {
+      onPlayTrack(selectedTracks[0], selectedTracks);
+      toast.success(`Playing ${selectedTracks.length} selected tracks`);
     }
   };
 
@@ -168,10 +175,19 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             onChange={(e) => setNewPlaylistDescription(e.target.value)}
           />
           {selectedTracks.length > 0 && (
-            <div className="p-3 bg-kitty-lightPink rounded-lg">
+            <div className="p-3 bg-kitty-lightPink rounded-lg space-y-2">
               <p className="text-sm font-medium">
                 Will add {selectedTracks.length} selected tracks to this playlist
               </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={playSelectedTracks}
+                className="w-full"
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Play Selected Tracks
+              </Button>
             </div>
           )}
           <Button
@@ -221,15 +237,17 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                       </p>
                     </div>
                   </div>
-                  {selectedTracks.length > 0 && (
-                    <Button
-                      size="sm"
-                      onClick={() => addTracksToPlaylist(playlist.id, playlist.spotify_id)}
-                      disabled={isLoading}
-                    >
-                      Add {selectedTracks.length} tracks
-                    </Button>
-                  )}
+                  <div className="flex gap-2">
+                    {selectedTracks.length > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={() => addTracksToPlaylist(playlist.id, playlist.spotify_id)}
+                        disabled={isLoading}
+                      >
+                        Add {selectedTracks.length} tracks
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

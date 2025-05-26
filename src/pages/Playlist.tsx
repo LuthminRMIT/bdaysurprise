@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,14 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import SearchResults from '@/components/SearchResults';
 import PlaylistManager from '@/components/PlaylistManager';
-import { Heart, Music, Search, AlertCircle, Loader2 } from 'lucide-react';
+import TrackPlayer from '@/components/TrackPlayer';
+import { Heart, Music, Search, AlertCircle, Loader2, ArrowLeft, Home } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Playlist = () => {
+  const navigate = useNavigate();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedTracks, setSelectedTracks] = useState<any[]>([]);
+  const [currentTrack, setCurrentTrack] = useState<any>(null);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -33,7 +38,6 @@ const Playlist = () => {
       console.error('Spotify auth error from URL:', error);
       setError(`Spotify authorization failed: ${error}`);
       toast.error(`Spotify authorization failed: ${error}`);
-      // Clear the URL parameters
       window.history.replaceState({}, document.title, '/playlist');
       return;
     }
@@ -70,7 +74,6 @@ const Playlist = () => {
         setAccessToken(data.access_token);
         console.log('Successfully authenticated with Spotify!');
         toast.success('Successfully connected to Spotify!');
-        // Clear the URL parameters
         window.history.replaceState({}, document.title, '/playlist');
       } else {
         throw new Error('No access token received from Spotify');
@@ -80,7 +83,6 @@ const Playlist = () => {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setError(`Failed to connect to Spotify: ${errorMessage}`);
       toast.error(`Failed to connect to Spotify: ${errorMessage}`);
-      // Clear the URL parameters even on error
       window.history.replaceState({}, document.title, '/playlist');
     } finally {
       setIsAuthenticating(false);
@@ -177,6 +179,35 @@ const Playlist = () => {
     toast.success('Removed track from selection');
   };
 
+  const playTrack = (track: any, trackList?: any[]) => {
+    setCurrentTrack(track);
+    const list = trackList || selectedTracks;
+    const index = list.findIndex(t => t.id === track.id);
+    setCurrentTrackIndex(index);
+    toast.success(`Now playing: ${track.name}`);
+  };
+
+  const playNext = () => {
+    const list = selectedTracks;
+    if (currentTrackIndex < list.length - 1) {
+      const nextIndex = currentTrackIndex + 1;
+      setCurrentTrack(list[nextIndex]);
+      setCurrentTrackIndex(nextIndex);
+    }
+  };
+
+  const playPrevious = () => {
+    if (currentTrackIndex > 0) {
+      const prevIndex = currentTrackIndex - 1;
+      setCurrentTrack(selectedTracks[prevIndex]);
+      setCurrentTrackIndex(prevIndex);
+    }
+  };
+
+  const goHome = () => {
+    navigate('/');
+  };
+
   if (isAuthenticating) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-kitty-lightPink via-kitty-softPink to-kitty-white flex items-center justify-center p-4">
@@ -193,39 +224,50 @@ const Playlist = () => {
   if (!accessToken) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-kitty-lightPink via-kitty-softPink to-kitty-white flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2 text-kitty-pink">
-              <Music className="h-6 w-6" />
-              Connect to Spotify
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <p className="text-gray-600">
-              Connect your Spotify account to create and manage playlists!
-            </p>
-            <Button 
-              onClick={authenticateSpotify} 
-              disabled={isLoading}
-              className="w-full bg-green-500 hover:bg-green-600"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                'Connect Spotify'
+        <div className="w-full max-w-md space-y-4">
+          <Button
+            onClick={goHome}
+            variant="outline"
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+          
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2 text-kitty-pink">
+                <Music className="h-6 w-6" />
+                Connect to Spotify
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
-            </Button>
-          </CardContent>
-        </Card>
+              <p className="text-gray-600">
+                Connect your Spotify account to create and manage playlists!
+              </p>
+              <Button 
+                onClick={authenticateSpotify} 
+                disabled={isLoading}
+                className="w-full bg-green-500 hover:bg-green-600"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  'Connect Spotify'
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -233,9 +275,22 @@ const Playlist = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-kitty-lightPink via-kitty-softPink to-kitty-white p-4">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold font-cute text-kitty-pink mb-2">Our Playlist 🎵</h1>
-          <p className="text-kitty-red font-cute">Create beautiful playlists together!</p>
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            onClick={goHome}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Home
+          </Button>
+          
+          <div className="text-center">
+            <h1 className="text-4xl font-bold font-cute text-kitty-pink mb-2">Our Playlist 🎵</h1>
+            <p className="text-kitty-red font-cute">Create beautiful playlists together!</p>
+          </div>
+          
+          <div className="w-20"></div> {/* Spacer for centering */}
         </div>
 
         {error && (
@@ -243,6 +298,19 @@ const Playlist = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+
+        {/* Current Track Player */}
+        {currentTrack && (
+          <div className="mb-6">
+            <TrackPlayer
+              track={currentTrack}
+              onNext={playNext}
+              onPrevious={playPrevious}
+              hasNext={currentTrackIndex < selectedTracks.length - 1}
+              hasPrevious={currentTrackIndex > 0}
+            />
+          </div>
         )}
 
         <Tabs defaultValue="search" className="space-y-6">
@@ -286,6 +354,7 @@ const Playlist = () => {
               selectedTracks={selectedTracks}
               onAddTrack={addToSelection}
               onRemoveTrack={removeFromSelection}
+              onPlayTrack={playTrack}
             />
           </TabsContent>
 
@@ -294,6 +363,7 @@ const Playlist = () => {
               accessToken={accessToken}
               selectedTracks={selectedTracks}
               onClearSelection={() => setSelectedTracks([])}
+              onPlayTrack={playTrack}
             />
           </TabsContent>
         </Tabs>
