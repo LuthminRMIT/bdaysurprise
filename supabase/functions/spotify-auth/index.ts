@@ -23,13 +23,16 @@ Deno.serve(async (req) => {
       const clientId = Deno.env.get('SPOTIFY_CLIENT_ID')
       const clientSecret = Deno.env.get('SPOTIFY_CLIENT_SECRET')
       
+      // Use the playlist page as redirect URI
+      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
+      
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': `Basic ${btoa(`${clientId}:${clientSecret}`)}`
         },
-        body: `grant_type=authorization_code&code=${code}&redirect_uri=${Deno.env.get('SUPABASE_URL')}/functions/v1/spotify-auth`
+        body: `grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(redirectUri)}`
       })
 
       const tokenData = await response.json()
@@ -42,7 +45,7 @@ Deno.serve(async (req) => {
 
     if (action === 'getAuthUrl') {
       const clientId = Deno.env.get('SPOTIFY_CLIENT_ID')
-      const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/spotify-auth`
+      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
       const scopes = 'playlist-modify-public playlist-modify-private user-read-private'
       
       const authUrl = `https://accounts.spotify.com/authorize?` +
