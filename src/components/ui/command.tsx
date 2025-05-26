@@ -21,7 +21,15 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
-interface CommandDialogProps extends DialogProps {}
+interface CommandDialogProps extends DialogProps {
+  children: React.ReactNode;
+}
+
+type CommandItemProps = React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item> & {
+  onSelect?: (value: string) => void;
+}
+
+type CommandProps = React.ComponentPropsWithoutRef<typeof CommandPrimitive.Root>
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (

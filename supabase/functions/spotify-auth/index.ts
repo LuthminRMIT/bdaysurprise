@@ -1,5 +1,6 @@
-
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+/// <reference lib="deno.ns" />
+/// <reference lib="deno.unstable" />
+import { createClient } from '@supabase/supabase-js'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,7 +31,7 @@ Deno.serve(async (req) => {
         })
       }
 
-      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
+      const redirectUri = 'http://localhost:8080/playlist'
       const scopes = 'playlist-modify-public playlist-modify-private user-read-private'
       
       const authUrl = `https://accounts.spotify.com/authorize?` +
@@ -68,7 +69,7 @@ Deno.serve(async (req) => {
         })
       }
       
-      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
+      const redirectUri = 'http://localhost:8080/playlist'
       
       console.log('Exchanging code for token with redirect URI:', redirectUri)
       
