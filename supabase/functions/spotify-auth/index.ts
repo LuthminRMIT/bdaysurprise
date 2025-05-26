@@ -18,13 +18,59 @@ Deno.serve(async (req) => {
     )
 
     const { code, action } = await req.json()
+    console.log('Spotify auth request:', { action, code: code ? 'provided' : 'missing' })
+
+    if (action === 'getAuthUrl') {
+      const clientId = Deno.env.get('SPOTIFY_CLIENT_ID')
+      if (!clientId) {
+        console.error('SPOTIFY_CLIENT_ID not configured')
+        return new Response(JSON.stringify({ error: 'Spotify client ID not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
+
+      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
+      const scopes = 'playlist-modify-public playlist-modify-private user-read-private'
+      
+      const authUrl = `https://accounts.spotify.com/authorize?` +
+        `client_id=${clientId}&` +
+        `response_type=code&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+        `scope=${encodeURIComponent(scopes)}&` +
+        `state=spotify_auth`
+
+      console.log('Generated auth URL:', authUrl)
+      console.log('Redirect URI:', redirectUri)
+
+      return new Response(JSON.stringify({ authUrl }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
 
     if (action === 'getAccessToken') {
       const clientId = Deno.env.get('SPOTIFY_CLIENT_ID')
       const clientSecret = Deno.env.get('SPOTIFY_CLIENT_SECRET')
       
-      // Use the playlist page as redirect URI
+      if (!clientId || !clientSecret) {
+        console.error('Spotify credentials not configured')
+        return new Response(JSON.stringify({ error: 'Spotify credentials not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
+
+      if (!code) {
+        console.error('Authorization code missing')
+        return new Response(JSON.stringify({ error: 'Authorization code missing' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
+      
       const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
+      
+      console.log('Exchanging code for token with redirect URI:', redirectUri)
       
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
@@ -36,33 +82,35 @@ Deno.serve(async (req) => {
       })
 
       const tokenData = await response.json()
+      console.log('Spotify token response status:', response.status)
       console.log('Spotify token response:', tokenData)
+      
+      if (!response.ok) {
+        console.error('Spotify token exchange failed:', tokenData)
+        return new Response(JSON.stringify({ 
+          error: 'Token exchange failed', 
+          details: tokenData 
+        }), {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
       
       return new Response(JSON.stringify(tokenData), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    if (action === 'getAuthUrl') {
-      const clientId = Deno.env.get('SPOTIFY_CLIENT_ID')
-      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
-      const scopes = 'playlist-modify-public playlist-modify-private user-read-private'
-      
-      const authUrl = `https://accounts.spotify.com/authorize?` +
-        `client_id=${clientId}&` +
-        `response_type=code&` +
-        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-        `scope=${encodeURIComponent(scopes)}`
-
-      return new Response(JSON.stringify({ authUrl }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
-    }
-
-    return new Response('Invalid action', { status: 400, headers: corsHeaders })
+    return new Response(JSON.stringify({ error: 'Invalid action' }), { 
+      status: 400, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    })
   } catch (error) {
     console.error('Spotify auth error:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: 'Internal server error', 
+      message: error.message 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
