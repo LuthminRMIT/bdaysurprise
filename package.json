@@ -85,5 +85,11 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.42.0"
+  },
+  "overrides": {
+    "rollup": "^4.18.0"
+  },
+  "resolutions": {
+    "rollup": "^4.18.0"
   }
 }
