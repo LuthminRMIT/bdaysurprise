@@ -1,9 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { useSpotifyPlayer } from '@/hooks/useSpotifyPlayer';
 
 interface TrackPlayerProps {
   track: any;
@@ -11,6 +11,7 @@ interface TrackPlayerProps {
   onPrevious?: () => void;
   hasNext?: boolean;
   hasPrevious?: boolean;
+  accessToken?: string | null;
 }
 
 const TrackPlayer: React.FC<TrackPlayerProps> = ({
@@ -18,13 +19,16 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
   onNext,
   onPrevious,
   hasNext = false,
-  hasPrevious = false
+  hasPrevious = false,
+  accessToken
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(50);
+  const [playbackMode, setPlaybackMode] = useState<'preview' | 'spotify'>('preview');
   const audioRef = useRef<HTMLAudioElement>(null);
+  const spotify = useSpotifyPlayer(accessToken || null);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -35,7 +39,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
   useEffect(() => {
     if (audioRef.current) {
       const audio = audioRef.current;
-      
       const updateTime = () => setCurrentTime(audio.currentTime);
       const updateDuration = () => setDuration(audio.duration);
       const handleEnded = () => {
@@ -44,11 +47,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
           onNext();
         }
       };
-
       audio.addEventListener('timeupdate', updateTime);
       audio.addEventListener('loadedmetadata', updateDuration);
       audio.addEventListener('ended', handleEnded);
-
       return () => {
         audio.removeEventListener('timeupdate', updateTime);
         audio.removeEventListener('loadedmetadata', updateDuration);
@@ -57,12 +58,27 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
     }
   }, [track, hasNext, onNext]);
 
-  const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
+  useEffect(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+  }, [track, playbackMode]);
+
+  const togglePlay = async () => {
+    if (playbackMode === 'preview') {
+      if (audioRef.current) {
+        if (isPlaying) {
+          audioRef.current.pause();
+        } else {
+          audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+      }
+    } else if (playbackMode === 'spotify' && track?.uri && spotify.isReady) {
+      if (!spotify.isPlaying) {
+        await spotify.play(track.uri);
       } else {
-        audioRef.current.play();
+        spotify.pause();
       }
       setIsPlaying(!isPlaying);
     }
@@ -81,11 +97,11 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (!track || !track.preview_url) {
+  if (!track || (!track.preview_url && !track.uri)) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-gray-500">No preview available for this track</p>
+          <p className="text-gray-500">No preview or Spotify playback available for this track</p>
         </CardContent>
       </Card>
     );
@@ -94,8 +110,9 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
   return (
     <Card className="w-full">
       <CardContent className="p-6">
-        <audio ref={audioRef} src={track.preview_url} preload="metadata" />
-        
+        {playbackMode === 'preview' && track.preview_url && (
+          <audio ref={audioRef} src={track.preview_url} preload="metadata" />
+        )}
         <div className="flex items-center gap-4 mb-4">
           {track.album?.images?.[0] && (
             <img
@@ -110,7 +127,26 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
             <p className="text-sm text-gray-500">{track.album?.name}</p>
           </div>
         </div>
-
+        <div className="mb-2 flex gap-2">
+          {track.preview_url && (
+            <Button
+              size="sm"
+              variant={playbackMode === 'preview' ? 'default' : 'outline'}
+              onClick={() => setPlaybackMode('preview')}
+            >
+              Preview
+            </Button>
+          )}
+          {track.uri && spotify.isReady && (
+            <Button
+              size="sm"
+              variant={playbackMode === 'spotify' ? 'default' : 'outline'}
+              onClick={() => setPlaybackMode('spotify')}
+            >
+              Spotify (Full)
+            </Button>
+          )}
+        </div>
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500 w-12">{formatTime(currentTime)}</span>
@@ -123,7 +159,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
             />
             <span className="text-sm text-gray-500 w-12">{formatTime(duration)}</span>
           </div>
-
           <div className="flex items-center justify-center gap-4">
             <Button
               variant="outline"
@@ -133,7 +168,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
             >
               <SkipBack className="h-4 w-4" />
             </Button>
-            
             <Button
               onClick={togglePlay}
               size="lg"
@@ -141,7 +175,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
             >
               {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
             </Button>
-            
             <Button
               variant="outline"
               size="sm"
@@ -151,7 +184,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({
               <SkipForward className="h-4 w-4" />
             </Button>
           </div>
-
           <div className="flex items-center gap-2">
             <Volume2 className="h-4 w-4 text-gray-500" />
             <Slider

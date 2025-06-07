@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,9 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [newPlaylistDescription, setNewPlaylistDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
+  const [playlistTracks, setPlaylistTracks] = useState<any[]>([]);
+  const [isTracksLoading, setIsTracksLoading] = useState(false);
 
   useEffect(() => {
     loadPlaylists();
@@ -154,6 +156,25 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     }
   };
 
+  const fetchPlaylistTracks = async (playlistId: string) => {
+    setIsTracksLoading(true);
+    setActivePlaylistId(playlistId);
+    try {
+      const { data, error } = await supabase
+        .from('playlist_tracks')
+        .select('*')
+        .eq('playlist_id', playlistId)
+        .order('added_at', { ascending: true });
+      if (error) throw error;
+      setPlaylistTracks(data || []);
+    } catch (error) {
+      toast.error('Failed to load playlist tracks');
+      setPlaylistTracks([]);
+    } finally {
+      setIsTracksLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -214,40 +235,64 @@ const PlaylistManager: React.FC<PlaylistManagerProps> = ({
           ) : (
             <div className="space-y-4">
               {playlists.map((playlist) => (
-                <div key={playlist.id} className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm">
-                  <div className="flex items-center gap-3">
-                    {playlist.image_url ? (
-                      <img
-                        src={playlist.image_url}
-                        alt={playlist.name}
-                        className="w-16 h-16 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-                        <Music className="h-6 w-6 text-gray-400" />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-medium">{playlist.name}</h3>
-                      {playlist.description && (
-                        <p className="text-sm text-gray-600">{playlist.description}</p>
+                <div key={playlist.id} className="flex flex-col gap-2 p-4 bg-white rounded-lg shadow-sm">
+                  <div className="flex items-center gap-3 justify-between cursor-pointer" onClick={() => fetchPlaylistTracks(playlist.id)}>
+                    <div className="flex items-center gap-3">
+                      {playlist.image_url ? (
+                        <img
+                          src={playlist.image_url}
+                          alt={playlist.name}
+                          className="w-16 h-16 rounded object-cover"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                          <Music className="h-6 w-6 text-gray-400" />
+                        </div>
                       )}
-                      <p className="text-xs text-gray-500">
-                        {playlist.total_tracks} tracks • Created {new Date(playlist.created_at).toLocaleDateString()}
-                      </p>
+                      <div>
+                        <h3 className="font-medium">{playlist.name}</h3>
+                        {playlist.description && (
+                          <p className="text-sm text-gray-600">{playlist.description}</p>
+                        )}
+                        <p className="text-xs text-gray-500">
+                          {playlist.total_tracks} tracks • Created {new Date(playlist.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
+                    <Button size="icon" variant="ghost" onClick={e => { e.stopPropagation(); fetchPlaylistTracks(playlist.id); }}>
+                      <Play className="h-5 w-5" />
+                    </Button>
                   </div>
-                  <div className="flex gap-2">
-                    {selectedTracks.length > 0 && (
-                      <Button
-                        size="sm"
-                        onClick={() => addTracksToPlaylist(playlist.id, playlist.spotify_id)}
-                        disabled={isLoading}
-                      >
-                        Add {selectedTracks.length} tracks
-                      </Button>
-                    )}
-                  </div>
+                  {activePlaylistId === playlist.id && (
+                    <div className="mt-2 bg-gray-50 rounded p-2">
+                      {isTracksLoading ? (
+                        <div className="text-center text-gray-500">Loading tracks...</div>
+                      ) : playlistTracks.length === 0 ? (
+                        <div className="text-center text-gray-500">No tracks in this playlist.</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {playlistTracks.map((track, idx) => (
+                            <div key={track.id} className="flex items-center gap-3 justify-between p-2 rounded hover:bg-gray-100">
+                              <div className="flex items-center gap-3">
+                                {track.image_url && (
+                                  <img src={track.image_url} alt={track.track_name} className="w-10 h-10 rounded object-cover" />
+                                )}
+                                <div>
+                                  <div className="font-medium">{track.track_name}</div>
+                                  <div className="text-xs text-gray-500">{track.artist_name}</div>
+                                </div>
+                              </div>
+                              {track.preview_url && onPlayTrack && (
+                                <Button size="icon" variant="outline" onClick={() => onPlayTrack(track, playlistTracks)}>
+                                  <Play className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

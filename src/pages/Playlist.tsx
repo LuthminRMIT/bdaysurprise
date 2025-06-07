@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +23,7 @@ const Playlist = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [currentTrackList, setCurrentTrackList] = useState<any[]>([]);
 
   useEffect(() => {
     // Check for auth code in URL
@@ -187,8 +187,16 @@ const Playlist = () => {
     toast.success(`Now playing: ${track.name}`);
   };
 
+  const playTrackWithList = (track: any, trackList: any[]) => {
+    setCurrentTrack(track);
+    setCurrentTrackList(trackList);
+    const index = trackList.findIndex(t => t.id === track.id);
+    setCurrentTrackIndex(index);
+    toast.success(`Now playing: ${track.name}`);
+  };
+
   const playNext = () => {
-    const list = selectedTracks;
+    const list = currentTrackList.length > 0 ? currentTrackList : selectedTracks;
     if (currentTrackIndex < list.length - 1) {
       const nextIndex = currentTrackIndex + 1;
       setCurrentTrack(list[nextIndex]);
@@ -197,9 +205,10 @@ const Playlist = () => {
   };
 
   const playPrevious = () => {
+    const list = currentTrackList.length > 0 ? currentTrackList : selectedTracks;
     if (currentTrackIndex > 0) {
       const prevIndex = currentTrackIndex - 1;
-      setCurrentTrack(selectedTracks[prevIndex]);
+      setCurrentTrack(list[prevIndex]);
       setCurrentTrackIndex(prevIndex);
     }
   };
@@ -307,8 +316,9 @@ const Playlist = () => {
               track={currentTrack}
               onNext={playNext}
               onPrevious={playPrevious}
-              hasNext={currentTrackIndex < selectedTracks.length - 1}
+              hasNext={currentTrackIndex < (currentTrackList.length > 0 ? currentTrackList.length : selectedTracks.length) - 1}
               hasPrevious={currentTrackIndex > 0}
+              accessToken={accessToken}
             />
           </div>
         )}
@@ -363,7 +373,7 @@ const Playlist = () => {
               accessToken={accessToken}
               selectedTracks={selectedTracks}
               onClearSelection={() => setSelectedTracks([])}
-              onPlayTrack={playTrack}
+              onPlayTrack={playTrackWithList}
             />
           </TabsContent>
         </Tabs>
