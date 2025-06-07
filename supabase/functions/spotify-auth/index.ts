@@ -29,6 +29,7 @@ Deno.serve(async (req) => {
         })
       }
 
+      // Use your actual Vercel deployment URL
       const redirectUri = 'https://bdaysurprise-git-main-luthminrmits-projects.vercel.app/playlist'
       const scopes = 'playlist-modify-public playlist-modify-private user-read-private'
       
@@ -67,6 +68,7 @@ Deno.serve(async (req) => {
         })
       }
       
+      // Use the same Vercel URL for token exchange
       const redirectUri = 'https://bdaysurprise-git-main-luthminrmits-projects.vercel.app/playlist'
       
       console.log('Exchanging code for token with redirect URI:', redirectUri)
