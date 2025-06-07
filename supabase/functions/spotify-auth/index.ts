@@ -1,4 +1,3 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -30,7 +29,7 @@ Deno.serve(async (req) => {
         })
       }
 
-      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
+      const redirectUri = 'https://bdaysurprise-git-main-luthminrmits-projects.vercel.app/playlist'
       const scopes = 'playlist-modify-public playlist-modify-private user-read-private'
       
       const authUrl = `https://accounts.spotify.com/authorize?` +
@@ -68,7 +67,7 @@ Deno.serve(async (req) => {
         })
       }
       
-      const redirectUri = 'https://e0f709b7-f7a0-4e02-be85-4c766ae389db.lovableproject.com/playlist'
+      const redirectUri = 'https://bdaysurprise-git-main-luthminrmits-projects.vercel.app/playlist'
       
       console.log('Exchanging code for token with redirect URI:', redirectUri)
       
