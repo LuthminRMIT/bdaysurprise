@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
       }
 
       // IMPORTANT: Update this to your actual Vercel domain
-      const redirectUri = 'https://bdaysurprise-r0kloichw-luthminrmits-projects.vercel.app/playlist'
+      const redirectUri = 'https://bdaysurprise-git-main-luthminrmits-projects.vercel.app/playlist'
       const scopes = 'playlist-modify-public playlist-modify-private user-read-private'
       
       const authUrl = `https://accounts.spotify.com/authorize?` +
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
       }
       
       // IMPORTANT: This must match the redirect URI above
-      const redirectUri = 'https://bdaysurprise-r0kloichw-luthminrmits-projects.vercel.app/playlist'
+      const redirectUri = 'https://bdaysurprise-git-main-luthminrmits-projects.vercel.app/playlist'
       
       console.log('Exchanging code for token with redirect URI:', redirectUri)
       
